@@ -213,7 +213,7 @@ Hello from Web B
 👉 Do you want me to also extend this with SSL/TLS (HTTPS) using ACM and ALB listener rules?
 
 
-Perfect ✅ Let’s extend the setup to include SSL/TLS (HTTPS) with ACM certificate + ALB listener rules.
+ ✅ Let’s extend the setup to include SSL/TLS (HTTPS) with ACM certificate + ALB listener rules.
 
 This way your domain (app.example.com) will be accessible via HTTPS (443) with a valid certificate.
 
@@ -1124,6 +1124,7 @@ Convert the ingress.yaml to a Helm chart with templated values and hook it into 
 Provide a step-by-step deploy checklist tailored to your AWS account (includes exact terraform apply command, kubectl commands, and what to watch in the AWS Console).
 
 Which do you want?
+
 
 
 
