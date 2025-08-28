@@ -225,9 +225,8 @@ resource "aws_lb_listener" "http_redirect" {
   }
 }
 
-ChatGPT said:
 
-Got it 👍. You want your ALB to handle two paths:
+You want your ALB to handle two paths:
 
 / → goes to one target group (say app_tg_root)
 
@@ -493,5 +492,6 @@ resource "aws_lb_listener" "http_redirect" {
 https://krish.kozow.com/ → goes to web_a (app-tg-root)
 
 https://krish.kozow.com/payment → goes to web_b (app-tg-payment)
+
 
 Do you also want me to add health check configurations for each target group (like / and /payment/health) so that ALB removes unhealthy instances automatically?
