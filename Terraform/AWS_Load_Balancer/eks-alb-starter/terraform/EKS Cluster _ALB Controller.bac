@@ -1,0 +1,43 @@
+provider "aws" {
+  region = "ap-south-1"
+}
+
+module "eks" {
+  source          = "terraform-aws-modules/eks/aws"
+  cluster_name    = "microservices-cluster"
+  cluster_version = "1.29"
+  subnets         = ["subnet-xxxx", "subnet-yyyy"] # your public/private subnets
+  vpc_id          = "vpc-xxxxxx"
+
+  node_groups = {
+    default = {
+      desired_capacity = 2
+      max_capacity     = 3
+      min_capacity     = 1
+      instance_types   = ["t3.medium"]
+    }
+  }
+}
+
+# Install AWS Load Balancer Controller (via Helm)
+resource "helm_release" "aws_lb_controller" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  namespace  = "kube-system"
+
+  set {
+    name  = "clusterName"
+    value = module.eks.cluster_name
+  }
+
+  set {
+    name  = "region"
+    value = "ap-south-1"
+  }
+
+  set {
+    name  = "vpcId"
+    value = "vpc-xxxxxx"
+  }
+}

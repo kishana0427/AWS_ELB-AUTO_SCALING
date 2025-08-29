@@ -1,0 +1,20 @@
+#replicaCount: 2
+#image:
+#repository: nginx
+#tag: "stable"
+#service:
+#type: ClusterIP
+#port: 80
+
+replicaCount: 2
+
+image:
+  repository: nginx
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 80
+
+resources: {}

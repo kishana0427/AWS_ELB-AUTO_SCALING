@@ -1,0 +1,7 @@
+# Chart.yaml
+apiVersion: v2
+name: app
+description: A Helm chart for Nginx App service
+type: application
+version: 0.1.0
+appVersion: "1.0"

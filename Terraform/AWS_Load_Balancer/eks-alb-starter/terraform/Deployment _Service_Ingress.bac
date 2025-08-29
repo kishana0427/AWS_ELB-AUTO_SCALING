@@ -1,0 +1,145 @@
+resource "kubernetes_namespace" "microservices" {
+  metadata {
+    name = "microservices"
+  }
+}
+
+# Sample App Service
+resource "kubernetes_deployment" "app" {
+  metadata {
+    name      = "app-deployment"
+    namespace = kubernetes_namespace.microservices.metadata[0].name
+  }
+
+  spec {
+    replicas = 2
+    selector {
+      match_labels = { app = "app-service" }
+    }
+    template {
+      metadata {
+        labels = { app = "app-service" }
+      }
+      spec {
+        container {
+          name  = "app-container"
+          image = "nginx"
+          port {
+            container_port = 80
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "app" {
+  metadata {
+    name      = "app-service"
+    namespace = kubernetes_namespace.microservices.metadata[0].name
+  }
+  spec {
+    selector = { app = "app-service" }
+    port {
+      port        = 80
+      target_port = 80
+    }
+    type = "NodePort"
+  }
+}
+
+# Sample API Service
+resource "kubernetes_deployment" "api" {
+  metadata {
+    name      = "api-deployment"
+    namespace = kubernetes_namespace.microservices.metadata[0].name
+  }
+
+  spec {
+    replicas = 2
+    selector {
+      match_labels = { app = "api-service" }
+    }
+    template {
+      metadata {
+        labels = { app = "api-service" }
+      }
+      spec {
+        container {
+          name  = "api-container"
+          image = "httpd"
+          port {
+            container_port = 80
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "api" {
+  metadata {
+    name      = "api-service"
+    namespace = kubernetes_namespace.microservices.metadata[0].name
+  }
+  spec {
+    selector = { app = "api-service" }
+    port {
+      port        = 80
+      target_port = 80
+    }
+    type = "NodePort"
+  }
+}
+
+# Ingress with host rules
+resource "kubernetes_ingress" "micro_ingress" {
+  metadata {
+    name      = "micro-ingress"
+    namespace = kubernetes_namespace.microservices.metadata[0].name
+    annotations = {
+      "kubernetes.io/ingress.class"                        = "alb"
+      "alb.ingress.kubernetes.io/scheme"                  = "internet-facing"
+      "alb.ingress.kubernetes.io/target-type"             = "ip"
+      "alb.ingress.kubernetes.io/certificate-arn"         = "arn:aws:acm:ap-south-1:111111111111:certificate/xxxxxxx"
+      "alb.ingress.kubernetes.io/listen-ports"            = `[{"HTTP":80,"HTTPS":443}]`
+      "alb.ingress.kubernetes.io/ssl-redirect"            = "443"
+    }
+  }
+
+  spec {
+    rule {
+      host = "app.example.com"
+      http {
+        path {
+          path = "/"
+          backend {
+            service {
+              name = kubernetes_service.app.metadata[0].name
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+
+    rule {
+      host = "api.example.com"
+      http {
+        path {
+          path = "/"
+          backend {
+            service {
+              name = kubernetes_service.api.metadata[0].name
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
